@@ -36,7 +36,7 @@ namespace SWB_Base
 
         public Slider()
         {
-            StyleSheet.Load("/swb_base/editor/ui/Slider.scss");
+            StyleSheet.Load("/swb_base/editor/ui/components/Slider.scss");
 
             Name = Add.Label(null, "name");
 
@@ -65,6 +65,7 @@ namespace SWB_Base
 
                 _value = snapped;
 
+                CreateEvent("onchange");
                 CreateValueEvent("value", _value);
                 UpdateSliderPositions();
             }

@@ -48,7 +48,7 @@ namespace SWB_Base
 
         public SliderEntry()
         {
-            StyleSheet.Load("/swb_base/editor/ui/SliderEntry.scss");
+            StyleSheet.Load("/swb_base/editor/ui/components/SliderEntry.scss");
 
             Slider = AddChild<Slider>();
             TextEntry = AddChild<TextEntry>();

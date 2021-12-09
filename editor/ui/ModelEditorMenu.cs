@@ -7,13 +7,15 @@ using SWB_Base;
 namespace SWB_Base
 {
     [UseTemplate]
-    public class EditorMenu : Panel
+    public class ModelEditorMenu : Panel
     {
         private enum DragMode
         {
             pos = 0,
             angle = 1,
         }
+
+        public virtual bool InvertedX => false;
 
         public float X { get; set; } = 0f;
         public float Y { get; set; } = 0f;
@@ -37,12 +39,12 @@ namespace SWB_Base
 
         private WeaponBase activeWeapon;
 
-        public EditorMenu()
+        public ModelEditorMenu()
         {
             DragModeLabel.Text = "x/z";
         }
 
-        public void OnReset()
+        public virtual void OnReset()
         {
             X = 0;
             Y = 0;
@@ -52,16 +54,16 @@ namespace SWB_Base
             Roll = 0;
         }
 
-        public void OnCopy()
+        public virtual void OnCopy()
         {
             var dataStr = String.Format("new AngPos {{ Angle = new Angles({0:0.###}f, {1:0.###}f, {2:0.###}f), Pos = new Vector3({3:0.###}f, {4:0.###}f, {5:0.###}f) }};", Pitch, Yaw, Roll, X, Y, Z);
             Clipboard.SetText(dataStr);
         }
 
         // No dragging if not directly on base panel
-        private bool CanDragOnPanel(Panel p)
+        public virtual bool CanDragOnPanel(Panel p)
         {
-            return p.ElementName == "editormenu";
+            return p.ElementName == "modeleditormenu";
         }
 
         public void SetZoomAnimData()
@@ -92,6 +94,7 @@ namespace SWB_Base
 
             if (dragMode == DragMode.pos)
             {
+
                 X = xOrigin - (startX - Mouse.Position.x) * 0.001f;
                 Z = zOrigin + (startY - Mouse.Position.y) * 0.001f;
             }
