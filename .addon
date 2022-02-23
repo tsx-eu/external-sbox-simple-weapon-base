@@ -1,0 +1,13 @@
+{
+  "Title": "Simple Weapon Base",
+  "Type": "game",
+  "Org": "swb",
+  "Ident": "demo",
+  "Schema": 1,
+  "HasAssets": true,
+  "AssetsPath": "",
+  "ResourcePaths": null,
+  "HasCode": true,
+  "CodePath": "code",
+  "RootNamespace": "Sandbox"
+}
