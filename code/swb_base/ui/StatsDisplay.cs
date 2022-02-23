@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Sandbox;
 using Sandbox.UI;
-using Sandbox.UI.Construct;
 
-namespace SWB_Base
+namespace SWB_Base.UI
 {
     [UseTemplate]
     public class StatsDisplay : Panel
@@ -31,8 +27,7 @@ namespace SWB_Base
 
         public override void Tick()
         {
-            var player = Local.Pawn as PlayerBase;
-            if (player == null) return;
+            if (Local.Pawn is not PlayerBase) return;
 
             if (weapon == null)
             {

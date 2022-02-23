@@ -1,5 +1,7 @@
-﻿using Sandbox;
+﻿using System.Collections.Generic;
+using Sandbox;
 using SWB_Base;
+using SWB_Base.Attachments;
 
 namespace SWB_WEAPONS
 {
@@ -12,7 +14,7 @@ namespace SWB_WEAPONS
         public override string ViewModelPath => "weapons/swb/rifles/fal/v_fal.vmdl";
         public override AngPos ViewModelOffset => new()
         {
-            Angle = new Angles(0, -5, 0),
+            Angle = new Angles(0, -5, 0), 
             Pos = new Vector3(-5, 0, 0)
         };
         public override string WorldModelPath => "weapons/swb/rifles/fal/w_fal.vmdl";
@@ -70,6 +72,168 @@ namespace SWB_WEAPONS
             {
                 Angle = new Angles(10, 40, 0),
                 Pos = new Vector3(5, 0, 0)
+            };
+
+            CustomizeAnimData = new AngPos
+            {
+                Angle = new Angles(-2.25f, 51.84f, 0f),
+                Pos = new Vector3(11.22f, -4.96f, 1.078f)
+            };
+
+            // Attachments //
+            var sideTopRail = new SideTopRail
+            {
+                ViewParentBone = "fal",
+                ViewTransform = new Transform
+                {
+                    Position = new Vector3(-0.7f, 4.4f, 4f),
+                    Rotation = Rotation.From(new Angles(180f, 0f, -90f)),
+                    Scale = 9f
+                },
+                WorldParentBone = "fal",
+                WorldTransform = new Transform
+                {
+                    Position = new Vector3(-0.7f, 2f, 4f),
+                    Rotation = Rotation.From(new Angles(180f, 0f, -90f)),
+                    Scale = 10f
+                },
+            };
+
+            AttachmentCategories = new List<AttachmentCategory>()
+            {
+                new AttachmentCategory
+                {
+                    Name = AttachmentCategoryName.Sight,
+                    BoneOrAttachment = "muzzle",
+                    Attachments = new List<AttachmentBase>()
+                    {
+                        new ReflexSight
+                        {
+                            ZoomAnimData = new AngPos { Angle = new Angles(-0.53f, 4.99f, 0f), Pos = new Vector3(-4.989f, -4.8f, 0.093f) },
+                            RequiresAttachmentWithName = sideTopRail.Name,
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(0, 6.6f, 1.5f),
+                                Rotation = Rotation.From(new Angles(-90f, 0f, -90f)),
+                                Scale = 4f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(0f, 4.5f, 1.4f),
+                                Rotation = Rotation.From(new Angles(-90f, 0f, -90f)),
+                                Scale = 5f
+                            },
+                        }
+                    }
+                },
+                new AttachmentCategory
+                {
+                    Name = AttachmentCategoryName.Muzzle,
+                    BoneOrAttachment = "muzzle",
+                    Attachments = new List<AttachmentBase>()
+                    {
+                        new RifleSilencer
+                        {
+                            Enabled = false,
+                            MuzzleFlashParticle = "particles/swb/muzzle/flash_medium_silenced.vpcf",
+                            ShootSound = "swb_rifle.silenced.fire",
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(0.019f, 3.65f, 38.057f),
+                                Rotation = Rotation.From(new Angles(-90f, 0f, 90f)),
+                                Scale = 15f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(0.019f, 1.8f, 38.057f),
+                                Rotation = Rotation.From(new Angles(-90f, 0f, 90f)),
+                                Scale = 15f
+                            },
+                        }
+                    }
+                },
+                new AttachmentCategory
+                {
+                    Name = AttachmentCategoryName.Tactical,
+                    BoneOrAttachment = "",
+                    Attachments = new List<AttachmentBase>()
+                    {
+                        new RifleLaserRed
+                        {
+                            Color = Color.Red,
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(1.479f, 4.4f, 22.182f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(1.688f, 2.6f, 23.241f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                        },
+                        new RifleLaserBlue
+                        {
+                            Color = Color.Blue,
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(1.479f, 4.4f, 22.182f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(1.688f, 2.6f, 23.241f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                        },
+                        new RifleLaserGreen
+                        {
+                            Color = Color.Green,
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(1.479f, 4.4f, 22.182f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(1.688f, 2.6f, 23.241f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                        },
+                        new RifleLaserRainbow
+                        {
+                            RainbowColor = true,
+                            ViewParentBone = "fal",
+                            ViewTransform = new Transform {
+                                Position = new Vector3(1.479f, 4.4f, 22.182f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                            WorldParentBone = "fal",
+                            WorldTransform = new Transform {
+                                Position = new Vector3(1.688f, 2.6f, 23.241f),
+                                Rotation = Rotation.From(new Angles(90f, 0f, -10f)),
+                                Scale = 4f
+                            },
+                        },
+                    }
+                },
+                new AttachmentCategory
+                {
+                    Name = AttachmentCategoryName.Rail,
+                    Selectable = false,
+                    BoneOrAttachment = "",
+                    Attachments = new List<AttachmentBase>()
+                    {
+                        sideTopRail
+                    }
+                }
             };
         }
     }

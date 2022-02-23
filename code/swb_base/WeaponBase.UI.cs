@@ -1,5 +1,6 @@
 ﻿using Sandbox;
 using Sandbox.UI;
+using SWB_Base.UI;
 
 /* 
  * Weapon base UI
@@ -69,7 +70,7 @@ namespace SWB_Base
         public void UISimulate(Client player)
         {
             // Cutomization menu
-            if (Input.Pressed(InputButton.Menu) && AttachmentCategories != null)
+            if (EnableCustomizationSV > 0 && Input.Pressed(InputButton.Menu) && AttachmentCategories != null)
             {
                 if (customizationMenu == null)
                 {

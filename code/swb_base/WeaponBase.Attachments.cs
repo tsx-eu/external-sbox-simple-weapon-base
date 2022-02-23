@@ -203,10 +203,46 @@ namespace SWB_Base
                 return;
             }
 
-            var activeWeapon = Owner.ActiveChild;
+            var player = Owner as PlayerBase;
+            var activeWeapon = player.ActiveChild;
             await GameTask.DelaySeconds(0.05f);
             if (!IsAsyncValid(activeWeapon, instanceID)) return;
             _ = TryEquipAttachmentCL(name, instanceID);
+        }
+
+        public void ToggleRequiredAttachment(string name, bool toggle)
+        {
+            var attach = GetAttachment(name);
+
+            if (string.IsNullOrEmpty(attach.RequiresAttachmentWithName)) return;
+
+            var activeAttach = GetActiveAttachment(attach.RequiresAttachmentWithName);
+            if (toggle && activeAttach == null)
+            {
+                EquipAttachmentSV(attach.RequiresAttachmentWithName);
+            }
+            else if (!toggle && activeAttach != null)
+            {
+                // Check if another attachment is using it
+                foreach (var cat in AttachmentCategories)
+                {
+                    foreach (var activeAtt in ActiveAttachments)
+                    {
+                        // Do not check current attachment
+                        if (activeAtt.Name == name) continue;
+
+                        var checkingAtt = GetAttachment(activeAtt.Name);
+
+                        if (checkingAtt.RequiresAttachmentWithName == attach.RequiresAttachmentWithName)
+                        {
+                            // Do not unequip if used by other attachment
+                            return;
+                        }
+                    }
+                }
+
+                UnequipAttachmentSV(attach.RequiresAttachmentWithName);
+            }
         }
 
         /// <summary>
@@ -214,6 +250,8 @@ namespace SWB_Base
         /// </summary>
         public void EquipAttachmentSV(string name)
         {
+            ToggleRequiredAttachment(name, true);
+
             // Server
             EquipAttachment(name);
 
@@ -226,6 +264,8 @@ namespace SWB_Base
         /// </summary>
         public void UnequipAttachmentSV(string name)
         {
+            ToggleRequiredAttachment(name, false);
+
             // Server
             UnequipAttachment(name);
 
@@ -250,7 +290,9 @@ namespace SWB_Base
                 return;
             }
 
-            var activeWeapon = Owner.ActiveChild;
+            var player = Owner as PlayerBase;
+            var activeWeapon = player.ActiveChild;
+
             await GameTask.DelaySeconds(0.05f);
             if (!IsAsyncValid(activeWeapon, instanceID)) return;
             _ = TryHandleAttachmentsCL(instanceID);

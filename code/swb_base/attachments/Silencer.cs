@@ -1,9 +1,5 @@
-﻿using System;
-using Sandbox;
-
-// Sounds Effects: https://www.soundsnap.com/tags/silencer?filters=K190YWdzJTNBJTI3c2lsZW5jZXIlMjcrQU5EK3B1Ymxpc2hlZCslMjElM0QrMA==&otherfilter=K190YWdzJTNBJTI3c2lsZW5jZXIlMjc=&sorting=1&page=3&maxaudio=-10&minaudio=-100&filteredCategories=&filteredSubCategories=&filteredTags=c2lsZW5jZXI=&filteredLibraries=&audioLengthChanged=false&searchTerm=c2lsZW5jZXI=
-
-namespace SWB_Base
+﻿
+namespace SWB_Base.Attachments
 {
     public class Silencer : OffsetAttachment
     {
@@ -27,7 +23,10 @@ namespace SWB_Base
 
         public override string EffectAttachment => "muzzle2"; // New muzzle flash effect point
 
+        /// <summary>New particle used for the muzzle flash</summary>
         public string MuzzleFlashParticle { get; set; }
+
+        /// <summary>New sound used for firing</summary>
         public string ShootSound { get; set; }
 
         private string oldMuzzleFlashParticle;
@@ -52,33 +51,28 @@ namespace SWB_Base
     public class PistolSilencer : Silencer
     {
         public override string Name => "SR8 Silencer";
-        public override string IconPath => "attachments/swb/barrel/silencer_pistol/ui/icon.png";
-        public override string ModelPath => "attachments/swb/barrel/silencer_pistol/silencer_pistol.vmdl";
+        public override string IconPath => "attachments/swb/muzzle/silencer_pistol/ui/icon.png";
+        public override string ModelPath => "attachments/swb/muzzle/silencer_pistol/silencer_pistol.vmdl";
     }
 
-    public class TestSilencer : PistolSilencer
+    public class RifleSilencer : Silencer
     {
-        public override string Name => "Big Silencer";
-        public override string Description => "This shit is OP AF, do NOT equip!!";
-
-        public override StatModifier StatModifier => new StatModifier
-        {
-            Damage = 0.1f,
-            Spread = -0.1f,
-        };
-
-        public override string[] Positives => new string[]
-        {
-        };
-
-        public override string[] Negatives => new string[]
-        {
-            "Good luck aiming with this monstrosity",
-        };
+        public override string Name => "ATS4 Silencer";
+        public override string IconPath => "attachments/swb/muzzle/silencer_rifle/ui/icon.png";
+        public override string ModelPath => "attachments/swb/muzzle/silencer_rifle/silencer_rifle.vmdl";
     }
 
-    public class TempSilencer : PistolSilencer
+    public class SniperSilencer : Silencer
     {
-        public override string Name => "Temp Silencer";
+        public override string Name => "ATS5 Silencer";
+        public override string IconPath => "attachments/swb/muzzle/silencer_sniper/ui/icon.png";
+        public override string ModelPath => "attachments/swb/muzzle/silencer_sniper/silencer_sniper.vmdl";
+    }
+
+    public class ShotgunSilencer : Silencer
+    {
+        public override string Name => "Salvo 12G Silencer";
+        public override string IconPath => "attachments/swb/muzzle/silencer_shotgun/ui/icon.png";
+        public override string ModelPath => "attachments/swb/muzzle/silencer_shotgun/silencer_shotgun.vmdl";
     }
 }

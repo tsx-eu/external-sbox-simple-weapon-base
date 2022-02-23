@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Sandbox;
 using Sandbox.UI;
 
-namespace SWB_Base
+namespace SWB_Base.Editor
 {
     [UseTemplate]
     public class AttachmentEditorMenu : ModelEditorMenu
@@ -19,7 +20,7 @@ namespace SWB_Base
 
         private AttachmentModel activeModel;
         private WeaponBase activeWeapon;
-        private SceneObject activeWorldAttach;
+        private List<SceneObject> activeWorldAttachments = new List<SceneObject>();
 
         private Angles defaultModelAngles;
 
@@ -47,11 +48,11 @@ namespace SWB_Base
             {
                 var viewModel = activeWeapon.ViewModelEntity;
 
-                FillBoneList(viewModel.GetModel());
+                FillBoneList(viewModel.Model);
             }
 
             // ModelInput
-            ModelInput.Text = "attachments/swb/barrel/silencer_pistol/silencer_pistol.vmdl"; //modelPlaceholder;
+            ModelInput.Text = "attachments/swb/muzzle/silencer_pistol/silencer_pistol.vmdl"; //modelPlaceholder;
             ModelInput.AddEventListener("onmousedown", () =>
             {
                 if (ModelInput.Text == modelPlaceholder)
@@ -63,7 +64,7 @@ namespace SWB_Base
             ModelInput.AddEventListener("value.changed", () => OnModelChange(ModelInput.Text));
 
             // BoneDropDown
-            BoneDropDown.AddEventListener("value.changed", () => CreateAttachmentModel());
+            BoneDropDown.AddEventListener("value.changed", () => CreateAttachmentModels());
         }
 
         public void FillBoneList(Model model)
@@ -111,12 +112,35 @@ namespace SWB_Base
             }
         }
 
-        private void CreateAttachmentModel()
+        private void CreateAttachmentModels()
         {
-            if (!isValidAttachment || activeWeapon == null || BoneName == null || BoneName == "-1") return;
+            if (!isEditingViewModel && ModelDisplay != null)
+            {
+                // World Model
+                foreach (var sceneObj in activeWorldAttachments)
+                {
+                    sceneObj.Delete();
+                }
 
+                // Create active attachment models on worlmodel
+                foreach (var activeAttach in activeWeapon.ActiveAttachments)
+                {
+                    var attach = (OffsetAttachment)activeWeapon.GetAttachment(activeAttach.Name);
+                    CreateAttachmentModel(attach.ModelPath, attach.WorldTransform, attach.WorldParentBone);
+                }
+            }
+
+            // Create attachment model
             var pos = new Vector3(X, Y, Z);
             var ang = new Angles(Pitch, Yaw, Roll);
+            var transform = new Transform(pos, Rotation.From(ang), Scale);
+
+            CreateAttachmentModel(ModelInput.Text, transform, BoneName);
+        }
+
+        private void CreateAttachmentModel(string model, Transform transform, string bone)
+        {
+            if (!isValidAttachment || activeWeapon == null || bone == null || bone == "-1") return;
 
             if (isEditingViewModel)
             {
@@ -127,37 +151,27 @@ namespace SWB_Base
                     activeModel = null;
                 }
 
-                var transform = new Transform(pos, Rotation.From(ang), Scale);
-
                 activeModel = new AttachmentModel(true);
                 activeModel.Owner = activeWeapon.Owner;
-                activeModel.SetModel(ModelInput.Text);
-                activeModel.SetParent(activeWeapon.ViewModelEntity, BoneName, transform);
+                activeModel.SetModel(model);
+                activeModel.SetParent(activeWeapon.ViewModelEntity, bone, transform);
             }
             else if (ModelDisplay != null)
             {
-                // World Model
-                if (activeWorldAttach != null)
-                {
-                    activeWorldAttach.Delete();
-                }
-
                 // Bone base offsets
                 var weaponTrans = activeWeapon.Transform;
-                var attachTrans = activeWeapon.GetBoneTransform(BoneName);
-                var editorOffsetPos = attachTrans.PointToWorld(pos);
+                var attachTrans = activeWeapon.GetBoneTransform(bone);
+                var editorOffsetPos = attachTrans.PointToWorld(transform.Position);
                 var boneOffsetPos = weaponTrans.PointToLocal(editorOffsetPos);
                 var boneOffetRot = weaponTrans.RotationToLocal(attachTrans.Rotation);
 
-                var attachRot = boneOffetRot * Rotation.From(ang);
-                var attachPos = boneOffsetPos + ModelDisplay.SceneObject.Position;
-                var modelTransform = new Transform(attachPos, attachRot, Scale);
+                var attachRot = boneOffetRot * transform.Rotation;
+                var attachPos = boneOffsetPos;
+                var modelTransform = new Transform(attachPos, attachRot, transform.Scale);
 
-                using (SceneWorld.SetCurrent(ModelDisplay.SceneWorld))
-                {
-                    activeWorldAttach = SceneObject.CreateModel(ModelInput.Text, modelTransform);
-                    ModelDisplay.SceneObject.AddChild("attach", activeWorldAttach);
-                }
+                var sceneObject = new SceneModel(ModelDisplay.SceneWorld, model, modelTransform);
+                activeWorldAttachments.Add(sceneObject);
+                ModelDisplay.SceneObject.AddChild("attach" + activeWorldAttachments.Count, sceneObject);
             }
         }
 
@@ -165,7 +179,7 @@ namespace SWB_Base
         {
             var rx = new Regex(@"\.vmdl$", RegexOptions.IgnoreCase);
 
-            if (!rx.IsMatch(modelPath) || !FileSystem.Mounted.FileExists(modelPath))
+            if (!rx.IsMatch(modelPath) || (!FileSystem.Mounted.FileExists(modelPath) && !FileSystem.Mounted.FileExists(modelPath + "_c")))
             {
                 ModelInput.AddClass("invalid");
                 isValidAttachment = false;
@@ -174,12 +188,12 @@ namespace SWB_Base
 
             isValidAttachment = true;
             ModelInput.AddClass("valid");
-            CreateAttachmentModel();
+            CreateAttachmentModels();
         }
 
         public void OnSliderChange()
         {
-            CreateAttachmentModel();
+            CreateAttachmentModels();
         }
 
         public override void OnReset()
@@ -215,8 +229,8 @@ namespace SWB_Base
                 ModelDisplay = null;
             }
 
-            FillBoneList(activeWeapon.ViewModelEntity.GetModel());
-            CreateAttachmentModel();
+            FillBoneList(activeWeapon.ViewModelEntity.Model);
+            CreateAttachmentModels();
         }
 
         public void OnEditWorldModel()
@@ -233,8 +247,8 @@ namespace SWB_Base
             ModelDisplay.Parent = this;
             defaultModelAngles = ModelDisplay.CamAngles;
 
-            FillBoneList(activeWeapon.GetModel());
-            CreateAttachmentModel();
+            FillBoneList(activeWeapon.Model);
+            CreateAttachmentModels();
         }
 
 

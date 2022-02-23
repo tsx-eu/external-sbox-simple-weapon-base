@@ -89,39 +89,39 @@ namespace SWB_Base
                 firedEntity.SetModel(EntityModel);
 
             firedEntity.Owner = Owner;
-            firedEntity.Position = MathUtil.RelativeAdd(Position, EntitySpawnOffset, Owner.EyeRot);
-            firedEntity.Rotation = Owner.EyeRot * Rotation.From(EntityAngles);
+            firedEntity.Position = MathUtil.RelativeAdd(Position, EntitySpawnOffset, Owner.EyeRotation);
+            firedEntity.Rotation = Owner.EyeRotation * Rotation.From(EntityAngles);
             firedEntity.RemoveDelay = RemoveDelay;
             firedEntity.UseGravity = UseGravity;
             firedEntity.Speed = isPrimary ? PrimaryEntitySpeed : SecondaryEntitySpeed;
             firedEntity.IsSticky = IsSticky;
             firedEntity.Damage = clipInfo.Damage;
             firedEntity.Force = clipInfo.Force;
-            firedEntity.StartVelocity = MathUtil.RelativeAdd(Vector3.Zero, EntityVelocity, Owner.EyeRot);
+            firedEntity.StartVelocity = MathUtil.RelativeAdd(Vector3.Zero, EntityVelocity, Owner.EyeRotation);
             firedEntity.Start();
         }
 
         public override void Attack(ClipInfo clipInfo, bool isPrimary)
         {
-            if ((IsRunning && RunAnimData != null) || ShouldTuck()) return;
+            if ((IsRunning && RunAnimData != AngPos.Zero) || ShouldTuck()) return;
 
             TimeSincePrimaryAttack = 0;
             TimeSinceSecondaryAttack = 0;
 
             if (!TakeAmmo(1))
             {
-                DryFire(clipInfo.DryFireSound);
+                SendWeaponSound(clipInfo.DryFireSound);
                 return;
             }
 
             // Player anim
-            (Owner as AnimEntity).SetAnimBool("b_attack", true);
+            (Owner as AnimEntity).SetAnimParameter("b_attack", true);
 
             // Shoot effects
             if (IsLocalPawn)
                 ScreenUtil.Shake(clipInfo.ScreenShake);
 
-            ShootEffects(clipInfo.MuzzleFlashParticle, clipInfo.BulletEjectParticle, clipInfo.ShootAnim);
+            ShootEffects(clipInfo.MuzzleFlashParticle, clipInfo.BulletEjectParticle, GetShootAnimation(clipInfo));
 
             if (!string.IsNullOrEmpty(clipInfo.ShootSound))
                 PlaySound(clipInfo.ShootSound);
@@ -137,18 +137,18 @@ namespace SWB_Base
 
         async Task AsyncAttack(ClipInfo clipInfo, bool isPrimary, float delay)
         {
-            if (AvailableAmmo() <= 0) return;
+            if (GetAvailableAmmo() <= 0) return;
 
             TimeSincePrimaryAttack -= delay;
             TimeSinceSecondaryAttack -= delay;
 
             // Player anim
-            (Owner as AnimEntity).SetAnimBool("b_attack", true);
+            (Owner as AnimEntity).SetAnimParameter("b_attack", true);
 
             // Play pre-fire animation
-            ShootEffects(null, null, clipInfo.ShootAnim);
+            ShootEffects(null, null, GetShootAnimation(clipInfo));
 
-            var owner = Owner as PlayerBase;
+            var owner = Owner as Player;
             if (owner == null) return;
             var activeWeapon = owner.ActiveChild;
             var instanceID = InstanceID;
